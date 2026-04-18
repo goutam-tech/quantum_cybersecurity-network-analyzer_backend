@@ -1,13 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using QuantumCyberAnalyzer.Dto;
-using QuantumCyberAnalyzer.Interfaces;
+using network_project.Dto;
+using network_project.Interfaces;
 
-namespace QuantumCyberAnalyzer.Controllers;
+namespace network_project.Controllers;
 
-/// <summary>
-/// GET /logs        – returns all network logs (paginated)
-/// GET /logs/{id}   – returns a single log entry
-/// </summary>
 [ApiController]
 [Route("[controller]")]
 public class LogsController : ControllerBase
@@ -16,7 +12,6 @@ public class LogsController : ControllerBase
 
     public LogsController(INetworkLogRepository repo) => _repo = repo;
 
-    /// <summary>GET /logs?page=1&pageSize=100</summary>
     [HttpGet]
     public async Task<IActionResult> GetLogs([FromQuery] int page = 1, [FromQuery] int pageSize = 100)
     {
@@ -37,7 +32,6 @@ public class LogsController : ControllerBase
         });
     }
 
-    /// <summary>GET /logs/{id}</summary>
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetLog(int id)
     {

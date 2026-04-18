@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using QuantumCyberAnalyzer.Models;
+using network_project.Models;
 
-namespace QuantumCyberAnalyzer.Data;
+namespace network_project.Data;
 
 public class AppDbContext : DbContext
 {
@@ -18,7 +18,6 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // NetworkLog
         modelBuilder.Entity<NetworkLog>(e =>
         {
             e.HasKey(x => x.LogId);
@@ -27,7 +26,6 @@ public class AppDbContext : DbContext
             e.Property(x => x.Protocol).HasMaxLength(20);
         });
 
-        // Node – unique IP
         modelBuilder.Entity<Node>(e =>
         {
             e.HasKey(x => x.NodeId);
@@ -35,14 +33,13 @@ public class AppDbContext : DbContext
             e.Property(x => x.IpAddress).HasMaxLength(50);
         });
 
-        // Edge
+
         modelBuilder.Entity<Edge>(e =>
         {
             e.HasKey(x => x.EdgeId);
             e.HasIndex(x => new { x.SourceIp, x.DestIp }).IsUnique();
         });
 
-        // QuantumWalkResult → Node
         modelBuilder.Entity<QuantumWalkResult>(e =>
         {
             e.HasKey(x => x.Id);
@@ -52,7 +49,7 @@ public class AppDbContext : DbContext
              .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // QftResult → Node
+        
         modelBuilder.Entity<QftResult>(e =>
         {
             e.HasKey(x => x.Id);
@@ -62,7 +59,6 @@ public class AppDbContext : DbContext
              .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // DetectionResult → Node
         modelBuilder.Entity<DetectionResult>(e =>
         {
             e.HasKey(x => x.Id);

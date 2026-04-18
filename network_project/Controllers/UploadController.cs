@@ -1,14 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using QuantumCyberAnalyzer.Dto;
-using QuantumCyberAnalyzer.Helper;
-using QuantumCyberAnalyzer.Interfaces;
+using network_project.Dto;
+using network_project.Helper;
+using network_project.Interfaces;
 
-namespace QuantumCyberAnalyzer.Controllers;
+namespace network_project.Controllers;
 
-/// <summary>
-/// POST /upload  – accepts a CSV file, validates, parses, and stores logs.
-///                 Then builds the graph (Nodes + Edges) automatically.
-/// </summary>
 [ApiController]
 [Route("[controller]")]
 public class UploadController : ControllerBase
@@ -27,9 +23,8 @@ public class UploadController : ControllerBase
         _graphBuilder = graphBuilder;
     }
 
-    /// <summary>POST /upload</summary>
     [HttpPost]
-    [RequestSizeLimit(50 * 1024 * 1024)]   // 50 MB max
+    [RequestSizeLimit(50 * 1024 * 1024)]
     public async Task<IActionResult> Upload(IFormFile file)
     {
         if (file is null || file.Length == 0)
@@ -50,7 +45,6 @@ public class UploadController : ControllerBase
         await _logRepo.AddRangeAsync(logs);
         await _logRepo.SaveChangesAsync();
 
-        // Build / update graph from uploaded logs
         await _graphBuilder.BuildAsync(logs);
 
         return Ok(new UploadResponseDto(true, logs.Count,

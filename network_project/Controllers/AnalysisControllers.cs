@@ -1,20 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using QuantumCyberAnalyzer.Dto;
-using QuantumCyberAnalyzer.Helper;
-using QuantumCyberAnalyzer.Interfaces;
+using network_project.Dto;
+using network_project.Helper;
+using network_project.Interfaces;
 
-namespace QuantumCyberAnalyzer.Controllers;
+namespace network_project.Controllers;
 
-// ══════════════════════════════════════════════════════════════════════════════
-// POST /analyze
-// ══════════════════════════════════════════════════════════════════════════════
-
-/// <summary>
-/// Runs the full analysis pipeline:
-///   1. Quantum Walk  → QuantumWalkResults
-///   2. QFT Analysis  → QFTResults
-///   3. Threat Scoring → DetectionResults
-/// </summary>
 [ApiController]
 [Route("[controller]")]
 public class AnalyzeController : ControllerBase
@@ -39,7 +29,6 @@ public class AnalyzeController : ControllerBase
         _nodes         = nodes;
     }
 
-    /// <summary>POST /analyze</summary>
     [HttpPost]
     public async Task<IActionResult> Analyze()
     {
@@ -47,14 +36,11 @@ public class AnalyzeController : ControllerBase
         if (nodeCount == 0)
             return BadRequest(new { Message = "No data to analyze. Upload a CSV first." });
 
-        // Step 1 – Quantum Walk
         var adjacency = await _graphBuilder.GetAdjacencyAsync();
         await _qwHelper.RunAsync(adjacency);
 
-        // Step 2 – QFT
         await _qftHelper.RunAsync();
 
-        // Step 3 – Threat Scoring
         var detections = await _scoringHelper.RunAsync();
 
         return Ok(new AnalysisResultDto(
@@ -67,10 +53,6 @@ public class AnalyzeController : ControllerBase
         new(d.Id, d.NodeId, d.Node?.IpAddress ?? "unknown",
             d.ThreatLevel, d.Confidence, d.DetectedAt);
 }
-
-// ══════════════════════════════════════════════════════════════════════════════
-// GET /results
-// ══════════════════════════════════════════════════════════════════════════════
 
 [ApiController]
 [Route("[controller]")]
@@ -90,7 +72,6 @@ public class ResultsController : ControllerBase
         _qftResults = qftResults;
     }
 
-    /// <summary>GET /results?count=50</summary>
     [HttpGet]
     public async Task<IActionResult> GetResults([FromQuery] int count = 50)
     {
@@ -99,7 +80,6 @@ public class ResultsController : ControllerBase
         return Ok(dtos);
     }
 
-    /// <summary>GET /results/quantum-walk</summary>
     [HttpGet("quantum-walk")]
     public async Task<IActionResult> GetQuantumWalkResults([FromQuery] int top = 20)
     {
@@ -110,7 +90,6 @@ public class ResultsController : ControllerBase
         return Ok(dtos);
     }
 
-    /// <summary>GET /results/qft</summary>
     [HttpGet("qft")]
     public async Task<IActionResult> GetQftResults([FromQuery] double threshold = 0.5)
     {
@@ -126,10 +105,6 @@ public class ResultsController : ControllerBase
             d.ThreatLevel, d.Confidence, d.DetectedAt);
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// GET /threats
-// ══════════════════════════════════════════════════════════════════════════════
-
 [ApiController]
 [Route("[controller]")]
 public class ThreatsController : ControllerBase
@@ -139,13 +114,12 @@ public class ThreatsController : ControllerBase
     public ThreatsController(IDetectionResultRepository detections) =>
         _detections = detections;
 
-    /// <summary>GET /threats  – grouped summary by threat level</summary>
     [HttpGet]
     public async Task<IActionResult> GetThreats()
     {
         var summary = await _detections.GetThreatSummaryAsync();
         var response = summary
-            .Where(kv => kv.Key != "Normal")   // focus on actual threats
+            .Where(kv => kv.Key != "Normal")
             .Select(kv => new ThreatSummaryDto(kv.Key, kv.Value.Count, kv.Value))
             .OrderByDescending(t => t.ThreatLevel == "Attack")
             .ToList();
@@ -153,7 +127,6 @@ public class ThreatsController : ControllerBase
         return Ok(response);
     }
 
-    /// <summary>GET /threats/{level}  – e.g. /threats/Attack</summary>
     [HttpGet("{level}")]
     public async Task<IActionResult> GetByLevel(string level)
     {
