@@ -1,17 +1,15 @@
 using Microsoft.EntityFrameworkCore;
-using QuantumCyberAnalyzer.Data;
-using QuantumCyberAnalyzer.Interfaces;
-using QuantumCyberAnalyzer.Repository;
-using QuantumCyberAnalyzer.Helper;
-using QuantumCyberAnalyzer.Middleware;
+using network_project.Data;
+using network_project.Interfaces;
+using network_project.Repository;
+using network_project.Helper;
+using network_project.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ── Database ──────────────────────────────────────────────────────────────────
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// ── Repositories ──────────────────────────────────────────────────────────────
 builder.Services.AddScoped<INetworkLogRepository, NetworkLogRepository>();
 builder.Services.AddScoped<INodeRepository, NodeRepository>();
 builder.Services.AddScoped<IEdgeRepository, EdgeRepository>();
@@ -19,14 +17,12 @@ builder.Services.AddScoped<IQuantumWalkResultRepository, QuantumWalkResultReposi
 builder.Services.AddScoped<IQftResultRepository, QftResultRepository>();
 builder.Services.AddScoped<IDetectionResultRepository, DetectionResultRepository>();
 
-// ── Helpers / Services ────────────────────────────────────────────────────────
 builder.Services.AddScoped<CsvParserHelper>();
 builder.Services.AddScoped<GraphBuilderHelper>();
 builder.Services.AddScoped<QuantumWalkHelper>();
 builder.Services.AddScoped<QftAnalysisHelper>();
 builder.Services.AddScoped<ThreatScoringHelper>();
 
-// ── Web ───────────────────────────────────────────────────────────────────────
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -42,8 +38,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// ── Middleware pipeline ────────────────────────────────────────────────────────
-app.UseMiddleware<GlobalExceptionHandler>();   // must be first
+app.UseMiddleware<GlobalExceptionHandler>();
 
 if (app.Environment.IsDevelopment())
 {
@@ -60,7 +55,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
-// ── Auto-migrate on startup ───────────────────────────────────────────────────
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
