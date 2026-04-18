@@ -10,16 +10,16 @@ namespace network_project.Controllers;
 public class UploadController : ControllerBase
 {
     private readonly INetworkLogRepository _logRepo;
-    private readonly CsvParserHelper       _csvParser;
-    private readonly GraphBuilderHelper    _graphBuilder;
+    private readonly CsvParserHelper _csvParser;
+    private readonly GraphBuilderHelper _graphBuilder;
 
     public UploadController(
         INetworkLogRepository logRepo,
         CsvParserHelper csvParser,
         GraphBuilderHelper graphBuilder)
     {
-        _logRepo      = logRepo;
-        _csvParser    = csvParser;
+        _logRepo = logRepo;
+        _csvParser = csvParser;
         _graphBuilder = graphBuilder;
     }
 

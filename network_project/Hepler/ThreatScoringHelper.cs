@@ -50,11 +50,18 @@ public class ThreatScoringHelper
 
             double threatScore = (_qwWeight * qwScore) + (_qftWeight * qftScore);
 
+            //string level = threatScore switch
+            //{
+            //    >= _attackThreshold  => "Attack",
+            //    >= _anomalyThreshold => "Suspicious",
+            //    _                                    => "Normal"
+            //};
+
             string level = threatScore switch
             {
-                >= var t when t >= _attackThreshold  => "Attack",
-                >= var t when t >= _anomalyThreshold => "Suspicious",
-                _                                    => "Normal"
+                var t when t >= _attackThreshold => "Attack",
+                var t when t >= _anomalyThreshold => "Suspicious",
+                _ => "Normal"
             };
 
             var result = new DetectionResult

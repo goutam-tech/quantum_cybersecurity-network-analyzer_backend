@@ -4,11 +4,18 @@ using network_project.Interfaces;
 using network_project.Repository;
 using network_project.Helper;
 using network_project.Middleware;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
+Env.Load();
 
+var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION");
+if (string.IsNullOrEmpty(connectionString))
+    throw new InvalidOperationException("Connection string not found. Set ConnectionStrings__DefaultConnection or DATABASE_URL in .env or appsettings.");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    options.UseNpgsql(connectionString);
+});
 
 builder.Services.AddScoped<INetworkLogRepository, NetworkLogRepository>();
 builder.Services.AddScoped<INodeRepository, NodeRepository>();
@@ -40,7 +47,7 @@ var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionHandler>();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
@@ -54,6 +61,9 @@ app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
+app.Urls.Add("http://0.0.0.0:8080");
+app.UseCors("AllowFrontend");
 
 using (var scope = app.Services.CreateScope())
 {
