@@ -90,19 +90,38 @@ public class ResultsController : ControllerBase
         return Ok(dtos);
     }
 
+    //[HttpGet("qft")]
+    //public async Task<IActionResult> GetQftResults([FromQuery] double threshold = 0.5)
+    //{
+    //    var results = await _qftResults.GetHighPeriodicityAsync(threshold);
+    //    var dtos = results.Select(r => new QftResultDto(
+    //        r.Id, r.NodeId, r.Node?.IpAddress ?? "",
+    //        r.DominantFrequency, r.PeriodicityScore)).ToList();
+    //    return Ok(dtos);
+    //}
+
+    //private static DetectionResultDto MapDetection(Models.DetectionResult d) =>
+    //    new(d.Id, d.NodeId, d.Node?.IpAddress ?? "unknown",
+    //        d.ThreatLevel, d.Confidence, d.DetectedAt);
     [HttpGet("qft")]
-    public async Task<IActionResult> GetQftResults([FromQuery] double threshold = 0.5)
+    public async Task<IActionResult> GetQftResults([FromQuery] double threshold = 0.1)
     {
+        threshold = Math.Min(threshold, 0.2);
+        threshold = Math.Max(threshold, 0.0);
+
         var results = await _qftResults.GetHighPeriodicityAsync(threshold);
+
+        if (!results.Any())
+        {
+            results = await _qftResults.GetHighPeriodicityAsync(0.0); // return all
+        }
+
         var dtos = results.Select(r => new QftResultDto(
             r.Id, r.NodeId, r.Node?.IpAddress ?? "",
             r.DominantFrequency, r.PeriodicityScore)).ToList();
+
         return Ok(dtos);
     }
-
-    private static DetectionResultDto MapDetection(Models.DetectionResult d) =>
-        new(d.Id, d.NodeId, d.Node?.IpAddress ?? "unknown",
-            d.ThreatLevel, d.Confidence, d.DetectedAt);
 }
 
 [ApiController]

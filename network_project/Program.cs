@@ -62,7 +62,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
-app.Urls.Add("http://0.0.0.0:8080");
+//app.Urls.Add("http://0.0.0.0:8080");
 app.UseCors("AllowFrontend");
 
 using (var scope = app.Services.CreateScope())
