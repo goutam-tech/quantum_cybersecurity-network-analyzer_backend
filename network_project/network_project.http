@@ -1,4 +1,4 @@
-@network_project_HostAddress = http://localhost:5117
+@network_project_HostAddress = http://localhost:5102
 
 GET {{network_project_HostAddress}}/weatherforecast/
 Accept: application/json

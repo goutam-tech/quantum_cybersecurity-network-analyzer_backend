@@ -20,15 +20,21 @@ public class NodeRepository : BaseRepository<Node>, INodeRepository
 
     public async Task UpsertNodeAsync(string ipAddress)
     {
-        var node = await _db.Nodes.FirstOrDefaultAsync(n => n.IpAddress == ipAddress);
+        var node = _db.Nodes.Local
+            .FirstOrDefault(n => n.IpAddress == ipAddress)
+            ?? await _db.Nodes.FirstOrDefaultAsync(n => n.IpAddress == ipAddress);
+
         if (node is null)
         {
-            await _db.Nodes.AddAsync(new Node { IpAddress = ipAddress, TotalConnections = 1 });
+            await _db.Nodes.AddAsync(new Node
+            {
+                IpAddress = ipAddress,
+                TotalConnections = 1
+            });
         }
         else
         {
             node.TotalConnections++;
-            _db.Nodes.Update(node);
         }
     }
 }
@@ -44,16 +50,23 @@ public class EdgeRepository : BaseRepository<Edge>, IEdgeRepository
 
     public async Task UpsertEdgeAsync(string sourceIp, string destIp)
     {
-        var edge = await _db.Edges
-                            .FirstOrDefaultAsync(e => e.SourceIp == sourceIp && e.DestIp == destIp);
+        var edge = _db.Edges.Local
+            .FirstOrDefault(e => e.SourceIp == sourceIp && e.DestIp == destIp)
+            ?? await _db.Edges.FirstOrDefaultAsync(e =>
+                e.SourceIp == sourceIp && e.DestIp == destIp);
+
         if (edge is null)
         {
-            await _db.Edges.AddAsync(new Edge { SourceIp = sourceIp, DestIp = destIp, Weight = 1 });
+            await _db.Edges.AddAsync(new Edge
+            {
+                SourceIp = sourceIp,
+                DestIp = destIp,
+                Weight = 1
+            });
         }
         else
         {
             edge.Weight++;
-            _db.Edges.Update(edge);
         }
     }
 }

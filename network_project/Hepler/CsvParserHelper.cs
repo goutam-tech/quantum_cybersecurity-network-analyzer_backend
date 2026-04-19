@@ -6,7 +6,9 @@ namespace network_project.Helper;
 public class CsvParserHelper
 {
     private static readonly string[] RequiredHeaders =
-        { "source_ip", "dest_ip", "protocol", "packet_size", "timestamp" };
+    {
+        "sourceip", "destip", "protocol", "packetsize", "timestamp"
+    };
 
     public (List<NetworkLog> Logs, string? Error) Parse(Stream stream)
     {
@@ -37,26 +39,29 @@ public class CsvParserHelper
             var line = reader.ReadLine();
             if (string.IsNullOrWhiteSpace(line)) continue;
 
-            var cols = line.Split(',');
+            var cols = line.Split(',', ';');
             if (cols.Length < RequiredHeaders.Length) continue;
 
-            if (!int.TryParse(cols[idx["packet_size"]].Trim(), out var packetSize))
+            if (!int.TryParse(cols[idx["packetsize"]].Trim(), out var packetSize))
             {
                 continue;
             }
 
-            if (!DateTime.TryParse(cols[idx["timestamp"]].Trim(),
-                    CultureInfo.InvariantCulture,
-                    DateTimeStyles.AssumeUniversal,
-                    out var ts))
+            if (!DateTime.TryParseExact(
+                cols[idx["timestamp"]].Trim(),
+                "dd-MM-yyyy HH:mm",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeUniversal,
+                out var ts))
             {
                 ts = DateTime.UtcNow;
             }
+            ts = DateTime.SpecifyKind(ts, DateTimeKind.Utc);
 
             logs.Add(new NetworkLog
             {
-                SourceIp   = cols[idx["source_ip"]].Trim(),
-                DestIp     = cols[idx["dest_ip"]].Trim(),
+                SourceIp   = cols[idx["sourceip"]].Trim(),
+                DestIp     = cols[idx["destip"]].Trim(),
                 Protocol   = cols[idx["protocol"]].Trim(),
                 PacketSize = packetSize,
                 Timestamp  = ts
