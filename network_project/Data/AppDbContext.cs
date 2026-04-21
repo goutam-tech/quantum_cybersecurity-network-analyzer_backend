@@ -13,6 +13,9 @@ public class AppDbContext : DbContext
     public DbSet<QuantumWalkResult> QuantumWalkResults { get; set; }
     public DbSet<QftResult>       QftResults        { get; set; }
     public DbSet<DetectionResult> DetectionResults  { get; set; }
+    public DbSet<User> Users { get; set; }
+    public DbSet<UserToken> UserTokens { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -66,6 +69,26 @@ public class AppDbContext : DbContext
             e.HasOne(x => x.Node)
              .WithMany(n => n.DetectionResults)
              .HasForeignKey(x => x.NodeId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<User>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.HasIndex(x => x.Email).IsUnique();
+            e.Property(x => x.Email).HasMaxLength(100).IsRequired();
+            e.Property(x => x.Name).HasMaxLength(100);
+            e.Property(x => x.PasswordHash).IsRequired();
+        });
+
+        modelBuilder.Entity<UserToken>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.HasIndex(x => x.Token).IsUnique();
+            e.Property(x => x.Token).IsRequired();
+            e.HasOne(x => x.User)
+             .WithMany(u => u.Tokens)
+             .HasForeignKey(x => x.UserId)
              .OnDelete(DeleteBehavior.Cascade);
         });
     }

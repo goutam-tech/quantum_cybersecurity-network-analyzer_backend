@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using network_project.Dto;
 using network_project.Helper;
 using network_project.Interfaces;
+using System.Linq;
 
 namespace network_project.Controllers;
 
@@ -46,12 +47,8 @@ public class AnalyzeController : ControllerBase
         return Ok(new AnalysisResultDto(
             TotalNodesAnalyzed: nodeCount,
             ThreatsDetected:    detections.Count(d => d.ThreatLevel != "Normal"),
-            Results:            detections.Select(MapDetection).ToList()));
+            Results:            detections.Select(DetectionMapper.MapDetection).ToList()));
     }
-
-    private static DetectionResultDto MapDetection(Models.DetectionResult d) =>
-        new(d.Id, d.NodeId, d.Node?.IpAddress ?? "unknown",
-            d.ThreatLevel, d.Confidence, d.DetectedAt);
 }
 
 [ApiController]
@@ -76,7 +73,7 @@ public class ResultsController : ControllerBase
     public async Task<IActionResult> GetResults([FromQuery] int count = 50)
     {
         var results = await _detections.GetLatestResultsAsync(count);
-        var dtos    = results.Select(MapDetection).ToList();
+        var dtos    = results.Select(DetectionMapper.MapDetection).ToList();
         return Ok(dtos);
     }
 
@@ -91,18 +88,24 @@ public class ResultsController : ControllerBase
     }
 
     [HttpGet("qft")]
-    public async Task<IActionResult> GetQftResults([FromQuery] double threshold = 0.5)
+    public async Task<IActionResult> GetQftResults([FromQuery] double threshold = 0.1)
     {
+        threshold = Math.Min(threshold, 0.2);
+        threshold = Math.Max(threshold, 0.0);
+
         var results = await _qftResults.GetHighPeriodicityAsync(threshold);
+
+        if (!results.Any())
+        {
+            results = await _qftResults.GetHighPeriodicityAsync(0.0); // return all
+        }
+
         var dtos = results.Select(r => new QftResultDto(
             r.Id, r.NodeId, r.Node?.IpAddress ?? "",
             r.DominantFrequency, r.PeriodicityScore)).ToList();
+
         return Ok(dtos);
     }
-
-    private static DetectionResultDto MapDetection(Models.DetectionResult d) =>
-        new(d.Id, d.NodeId, d.Node?.IpAddress ?? "unknown",
-            d.ThreatLevel, d.Confidence, d.DetectedAt);
 }
 
 [ApiController]
@@ -135,4 +138,11 @@ public class ThreatsController : ControllerBase
             d.Id, d.NodeId, d.Node?.IpAddress ?? "",
             d.ThreatLevel, d.Confidence, d.DetectedAt)));
     }
+}
+
+public static class DetectionMapper
+{
+    public static DetectionResultDto MapDetection(Models.DetectionResult d) =>
+        new(d.Id, d.NodeId, d.Node?.IpAddress ?? "unknown",
+            d.ThreatLevel, d.Confidence, d.DetectedAt);
 }
