@@ -43,9 +43,16 @@ public interface IQftResultRepository : IRepository<QftResult>
     Task<IEnumerable<QftResult>> GetHighPeriodicityAsync(double threshold);
 }
 
+//public interface IDetectionResultRepository : IRepository<DetectionResult>
+//{
+//    Task<IEnumerable<DetectionResult>> GetByThreatLevelAsync(string threatLevel);
+//    Task<IEnumerable<DetectionResult>> GetLatestResultsAsync(int count = 50);
+//    Task<Dictionary<string, List<string>>> GetThreatSummaryAsync();
+//}
 public interface IDetectionResultRepository : IRepository<DetectionResult>
 {
     Task<IEnumerable<DetectionResult>> GetByThreatLevelAsync(string threatLevel);
     Task<IEnumerable<DetectionResult>> GetLatestResultsAsync(int count = 50);
     Task<Dictionary<string, List<string>>> GetThreatSummaryAsync();
+    Task ClearAllAsync();
 }
