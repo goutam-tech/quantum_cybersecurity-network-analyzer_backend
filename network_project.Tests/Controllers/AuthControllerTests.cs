@@ -49,8 +49,6 @@ namespace network_project.Tests.Controllers
             );
         }
 
-        // ================= SIGNUP =================
-
         [Fact]
         public async Task Signup_InvalidModel_ReturnsBadRequest()
         {
@@ -107,8 +105,6 @@ namespace network_project.Tests.Controllers
             var ok = Assert.IsType<OkObjectResult>(result);
             Assert.NotNull(ok.Value);
         }
-
-        // ================= LOGIN =================
 
         [Fact]
         public async Task Login_InvalidModel_ReturnsBadRequest()
@@ -190,8 +186,6 @@ namespace network_project.Tests.Controllers
             Assert.NotNull(ok.Value);
         }
 
-        // ================= REVOKE =================
-
         [Fact]
         public async Task Revoke_InvalidModel_ReturnsBadRequest()
         {
@@ -245,14 +239,11 @@ namespace network_project.Tests.Controllers
             Assert.IsType<OkObjectResult>(result);
         }
 
-        // ================= ME =================
-
         [Fact]
         public async Task Me_InvalidToken_ReturnsUnauthorized()
         {
             var controller = GetController();
 
-            // Empty ClaimsIdentity = no "sub" claim → triggers Unauthorized
             controller.ControllerContext.HttpContext = new DefaultHttpContext
             {
                 User = new ClaimsPrincipal(new ClaimsIdentity())

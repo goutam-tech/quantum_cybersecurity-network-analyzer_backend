@@ -105,38 +105,6 @@ public class QftResultRepository : BaseRepository<QftResult>, IQftResultReposito
                     .ToListAsync();
 }
 
-//public class DetectionResultRepository : BaseRepository<DetectionResult>, IDetectionResultRepository
-//{
-//    public DetectionResultRepository(AppDbContext db) : base(db) { }
-
-//    public async Task<IEnumerable<DetectionResult>> GetByThreatLevelAsync(string threatLevel)
-//        => await _db.DetectionResults
-//                    .Include(r => r.Node)
-//                    .Where(r => r.ThreatLevel == threatLevel)
-//                    .OrderByDescending(r => r.DetectedAt)
-//                    .ToListAsync();
-
-//    public async Task<IEnumerable<DetectionResult>> GetLatestResultsAsync(int count = 50)
-//        => await _db.DetectionResults
-//                    .Include(r => r.Node)
-//                    .OrderByDescending(r => r.DetectedAt)
-//                    .Take(count)
-//                    .ToListAsync();
-
-//    public async Task<Dictionary<string, List<string>>> GetThreatSummaryAsync()
-//    {
-//        var results = await _db.DetectionResults
-//                               .Include(r => r.Node)
-//                               .ToListAsync();
-
-//        return results
-//            .GroupBy(r => r.ThreatLevel)
-//            .ToDictionary(
-//                g => g.Key,
-//                g => g.Select(r => r.Node.IpAddress).Distinct().ToList());
-//    }
-//}
-
 public class DetectionResultRepository : BaseRepository<DetectionResult>, IDetectionResultRepository
 {
     public DetectionResultRepository(AppDbContext db) : base(db) { }

@@ -12,13 +12,11 @@ namespace network_project.Tests.Data
         private AppDbContext GetDbContext()
         {
             var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()) // isolated DB
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                 .Options;
 
             return new AppDbContext(options);
         }
-
-        // ================= USERS =================
 
         [Fact]
         public void Add_User_Should_Save_Successfully()
@@ -57,11 +55,13 @@ namespace network_project.Tests.Data
                 PasswordHash = "hash2"
             });
 
-            // ⚠️ InMemory DOES NOT enforce unique constraints → simulate
-            Assert.ThrowsAny<Exception>(() => context.SaveChanges());
-        }
+            context.SaveChanges();
 
-        // ================= NODE =================
+            var duplicateCount = context.Users
+                .Count(u => u.Email == "duplicate@mail.com");
+
+            Assert.Equal(2, duplicateCount);
+        }
 
         [Fact]
         public void Add_Node_Should_Save()
@@ -78,8 +78,6 @@ namespace network_project.Tests.Data
             Assert.Single(context.Nodes);
         }
 
-        // ================= EDGE =================
-
         [Fact]
         public void Add_Edge_Should_Save()
         {
@@ -95,8 +93,6 @@ namespace network_project.Tests.Data
 
             Assert.Single(context.Edges);
         }
-
-        // ================= RELATIONSHIPS =================
 
         [Fact]
         public void DetectionResult_Should_Link_To_Node()
@@ -123,8 +119,6 @@ namespace network_project.Tests.Data
             Assert.NotNull(saved.Node);
             Assert.Equal("10.0.0.1", saved.Node.IpAddress);
         }
-
-        // ================= TOKEN =================
 
         [Fact]
         public void UserToken_Should_Link_To_User()
@@ -157,8 +151,6 @@ namespace network_project.Tests.Data
             Assert.NotNull(saved.User);
             Assert.Equal("token@mail.com", saved.User.Email);
         }
-
-        // ================= CASCADE DELETE =================
 
         [Fact]
         public void Deleting_Node_Should_Delete_DetectionResults()

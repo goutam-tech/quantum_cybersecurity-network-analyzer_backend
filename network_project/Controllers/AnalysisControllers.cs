@@ -118,22 +118,10 @@ public class ThreatsController : ControllerBase
         _detections = detections;
 
     [HttpGet]
-    //public async Task<IActionResult> GetThreats()
-    //{
-    //    var summary = await _detections.GetThreatSummaryAsync();
-    //    var response = summary
-    //        .Where(kv => kv.Key != "Normal")
-    //        .Select(kv => new ThreatSummaryDto(kv.Key, kv.Value.Count, kv.Value))
-    //        .OrderByDescending(t => t.ThreatLevel == "Attack")
-    //        .ToList();
-
-    //    return Ok(response);
-    //}
     public async Task<IActionResult> GetThreats()
     {
         var summary = await _detections.GetThreatSummaryAsync();
 
-        // Return all levels ordered: Attack first, then Suspicious, then Normal
         var order = new[] { "Attack", "Suspicious", "Normal" };
         var response = order
             .Where(level => summary.ContainsKey(level))
