@@ -116,6 +116,27 @@ network_project/
 │
 ├── Program.cs                   # App bootstrap, DI, middleware, EF migrations
 └── .env                         # Environment variables (not committed)
+
+network_project.Tests/
+│
+├── Controllers/
+│   ├── AnalysisControllersTests.cs
+│   ├── AuthControllertests.cs
+│   ├── LogsControllerTests.cs 
+│   └── UploadControllerTests.cs
+├── Data/
+│   └── AppDbContextTests.cs
+├── Dtos/
+│   ├── AuthDtoTests.cs 
+│   └── TestDto.cs
+├── Helper/
+│   ├── CsvParserHelperTests.cs
+│   ├── GraphBuilderHelperTests.cs
+│   ├── QuantumWalkHelperTests.cs
+│   ├── QftAnalysisHelperTests.cs
+│   ├── ThreatScoringHelperTests.cs
+│   ├── JWTHelperTests.cs
+│   └── PasswordHelperTests.cs
 ```
 
 ---
@@ -180,7 +201,7 @@ Swagger UI: `http://localhost:5000/swagger`
 | POST | `/auth/signup` | Register a new user |
 | POST | `/auth/login` | Login and receive JWT |
 | POST | `/auth/revoke` | Revoke a JWT token |
-| GET | `/auth/me` | Get current user info (🔒 JWT required) |
+| GET | `/auth/me` | Get current user info (JWT required) |
 
 ### Upload
 | Method | Endpoint | Description |
